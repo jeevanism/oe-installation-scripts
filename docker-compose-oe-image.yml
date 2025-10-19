@@ -1,0 +1,52 @@
+services:
+  app:
+    image: codewasher/oe-docker:latest
+    ports:
+      - "${APP_HTTP_PORT:-8080}:80"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: "${DATABASE_NAME:-openeyes}"
+      DATABASE_USER: "${DATABASE_USER:-openeyes}"
+      DATABASE_PASS: "${DATABASE_PASS:-openeyes}"
+      YII_DEBUG: "true" # Hardcoded to true to enable linkAssets for Docker
+      YII_TRACE_LEVEL: "${YII_TRACE_LEVEL:-3}"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app-assets:/var/www/html/assets
+      - app-cache:/var/www/html/cache
+      - app-protected-cache:/var/www/html/protected/cache
+      - app-runtime:/var/www/html/protected/runtime
+    restart: unless-stopped
+
+  db:
+    image: mariadb:10.6
+    environment:
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-openeyesroot}"
+      MARIADB_DATABASE: "${DATABASE_NAME:-openeyes}"
+      MARIADB_USER: "${DATABASE_USER:-openeyes}"
+      MARIADB_PASSWORD: "${DATABASE_PASS:-openeyes}"
+      TZ: "${TZ:-UTC}"
+    ports:
+      - "${DB_FORWARD_PORT:-33060}:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u${DATABASE_USER:-openeyes} -p${DATABASE_PASS:-openeyes}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  app-assets:
+  app-cache:
+  app-protected-cache:
+  app-runtime:
