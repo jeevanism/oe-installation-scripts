@@ -1,4 +1,8 @@
+# OpenEyes Dockerized 
+
 **This repository contains only a Dockerized implementation of OpenEyes.**
+
+Standard OpenEyes (OE) Docker may not work straight away; you have to apply some custom patches. This repository addresses those issues and makes it easy to install, configure, and run OpenEyes Docker for development.
 
 The core OpenEyes source code and related materials belong to the Apperta Foundation: 
 [https://github.com/AppertaFoundation/openeyes](https://github.com/AppertaFoundation/openeyes).
